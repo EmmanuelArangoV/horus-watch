@@ -21,7 +21,7 @@ import com.horus.wear.presentation.ui.components.*
 import com.horus.wear.presentation.util.BASE_URL
 
 @Composable
-fun ProfileScreen(profile: MedicalProfile) {
+fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
     val context = LocalContext.current
     val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
@@ -186,9 +186,29 @@ fun ProfileScreen(profile: MedicalProfile) {
                     )
                 }
 
+                item {
+                    Button(
+                        onClick = onLogout,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .transformedHeight(this, transformationSpec),
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.surface),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text(
+                            text = "Cerrar sesión",
+                            color = colors.textMuted,
+                            fontSize = 12.sp,
+                            fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                        )
+                    }
+                }
+
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }
 }
-

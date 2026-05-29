@@ -12,3 +12,8 @@ fun getSavedUserId(context: Context): String? {
         .getString("userId", null)
 }
 
+fun clearUserId(context: Context) {
+    context.getSharedPreferences("horus", Context.MODE_PRIVATE)
+        .edit().remove("userId").apply()
+}
+
