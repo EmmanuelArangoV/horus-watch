@@ -9,7 +9,7 @@ import com.horus.wear.presentation.ui.components.ErrorScreen
 import com.horus.wear.presentation.ui.components.LoadingScreen
 import com.horus.wear.presentation.ui.screens.LoginScreen
 import com.horus.wear.presentation.ui.screens.ProfileScreen
-import com.horus.wear.presentation.util.clearUserId
+import com.horus.wear.presentation.util.clearSession
 import com.horus.wear.presentation.util.getSavedUserId
 import com.horus.wear.presentation.util.saveUserId
 import kotlinx.coroutines.launch
@@ -37,12 +37,12 @@ fun HorusWearApp() {
         val uid = activeUserId
         if (uid != null) {
             screen = "loading"
-            val result = fetchMedicalProfile(uid)
+            val result = fetchMedicalProfile(context, uid)
             if (result != null) {
                 profile = result
                 screen = "profile"
             } else {
-                errorMsg = "No se pudo cargar el perfil"
+                errorMsg = "No se pudo cargar el perfil. Revisa tu conexión."
                 screen = "error"
             }
         } else if (screen != "splash") {
@@ -62,7 +62,7 @@ fun HorusWearApp() {
                 activeUserId?.let { uid ->
                     scope.launch {
                         screen = "loading"
-                        val result = fetchMedicalProfile(uid)
+                        val result = fetchMedicalProfile(context, uid)
                         if (result != null) { profile = result; screen = "profile" }
                         else { errorMsg = "Sin conexión"; screen = "error" }
                     }
@@ -72,7 +72,7 @@ fun HorusWearApp() {
                 ProfileScreen(
                     profile = it,
                     onLogout = {
-                        clearUserId(context)
+                        clearSession(context)
                         activeUserId = null
                     }
                 )
@@ -80,4 +80,3 @@ fun HorusWearApp() {
         }
     }
 }
-

@@ -12,8 +12,21 @@ fun getSavedUserId(context: Context): String? {
         .getString("userId", null)
 }
 
-fun clearUserId(context: Context) {
+fun saveProfileJson(context: Context, json: String) {
     context.getSharedPreferences("horus", Context.MODE_PRIVATE)
-        .edit().remove("userId").apply()
+        .edit().putString("profile_json", json).apply()
+}
+
+fun getProfileJson(context: Context): String? {
+    return context.getSharedPreferences("horus", Context.MODE_PRIVATE)
+        .getString("profile_json", null)
+}
+
+fun clearSession(context: Context) {
+    context.getSharedPreferences("horus", Context.MODE_PRIVATE)
+        .edit()
+        .remove("userId")
+        .remove("profile_json")
+        .apply()
 }
 
