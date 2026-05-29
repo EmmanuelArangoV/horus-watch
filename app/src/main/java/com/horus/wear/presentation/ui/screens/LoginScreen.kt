@@ -14,14 +14,23 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
+import com.horus.wear.presentation.network.verifyDeviceCode
 import com.horus.wear.presentation.theme.Exo2FontFamily
 import com.horus.wear.presentation.theme.LocalHorusColors
+import com.horus.wear.presentation.util.saveTokens
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LoginScreen(onLogin: (String) -> Unit) {
     var code by remember { mutableStateOf("") }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    
     val colors = LocalHorusColors.current
     val listState = rememberTransformingLazyColumnState()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     AppScaffold {
         ScreenScaffold(
@@ -46,32 +55,51 @@ fun LoginScreen(onLogin: (String) -> Unit) {
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
+                        if (errorMsg != null) {
+                            Text(
+                                text = errorMsg!!,
+                                color = com.horus.wear.presentation.theme.HorusCritical,
+                                fontSize = 11.sp,
+                                fontFamily = Exo2FontFamily,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp)
+                            )
+                        }
                     }
                 }
 
                 item {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
-                    ) {
-                        for (i in 0 until 6) {
-                            val digit = code.getOrNull(i)
-                            Box(
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .size(22.dp)
-                                    .clip(CircleShape)
-                                    .background(if (digit != null) colors.pillBlue else colors.surface),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (digit != null) {
-                                    Text(
-                                        text = digit.toString(),
-                                        color = colors.text,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = Exo2FontFamily
-                                    )
+                    if (isLoading) {
+                        Box(modifier = Modifier.fillMaxWidth().height(26.dp).padding(bottom = 12.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                colors = ProgressIndicatorDefaults.colors(indicatorColor = colors.pillYellow)
+                            )
+                        }
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        ) {
+                            for (i in 0 until 6) {
+                                val digit = code.getOrNull(i)
+                                Box(
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                        .size(22.dp)
+                                        .clip(CircleShape)
+                                        .background(if (digit != null) colors.pillBlue else colors.surface),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (digit != null) {
+                                        Text(
+                                            text = digit.toString(),
+                                            color = colors.text,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = Exo2FontFamily
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -104,12 +132,37 @@ fun LoginScreen(onLogin: (String) -> Unit) {
                                             }
                                         )
                                         .clickable {
+                                            if (isLoading) return@clickable
+                                            
                                             if (btn == "DEL") {
                                                 if (code.isNotEmpty()) code = code.dropLast(1)
                                             } else if (btn == "OK") {
                                                 if (code.length == 6) {
-                                                    // Faking login for the prototype, using the fixed test user UUID
-                                                    onLogin("3a89a6c6-b7a7-446d-8e0c-745d2bbfd4fd")
+                                                    isLoading = true
+                                                    errorMsg = null
+                                                    scope.launch {
+                                                        val result = verifyDeviceCode(code)
+                                                        isLoading = false
+                                                        if (result.isSuccess) {
+                                                            val json = result.getOrNull()
+                                                            val accessToken = json?.optString("accessToken") ?: ""
+                                                            val refreshToken = json?.optString("refreshToken") ?: ""
+                                                            val uid = json?.optJSONObject("user")?.optString("id") ?: ""
+                                                            
+                                                            if (uid.isNotEmpty() && accessToken.isNotEmpty()) {
+                                                                saveTokens(context, accessToken, refreshToken)
+                                                                onLogin(uid)
+                                                            } else {
+                                                                errorMsg = "Respuesta del servidor inválida"
+                                                            }
+                                                        } else {
+                                                            when (result.exceptionOrNull()?.message) {
+                                                                "401" -> errorMsg = "El código ha expirado o es incorrecto"
+                                                                "429" -> errorMsg = "Demasiados intentos, espera unos minutos"
+                                                                else  -> errorMsg = "Error de conexión"
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             } else {
                                                 if (code.length < 6) code += btn
@@ -135,4 +188,3 @@ fun LoginScreen(onLogin: (String) -> Unit) {
         }
     }
 }
-
