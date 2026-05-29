@@ -16,8 +16,7 @@ import androidx.wear.compose.material3.*
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.horus.wear.presentation.model.MedicalProfile
-import com.horus.wear.presentation.theme.HorusDark
-import com.horus.wear.presentation.theme.HorusRed
+import com.horus.wear.presentation.theme.LocalHorusColors
 import com.horus.wear.presentation.ui.components.*
 import com.horus.wear.presentation.util.BASE_URL
 
@@ -26,6 +25,7 @@ fun ProfileScreen(profile: MedicalProfile) {
     val context = LocalContext.current
     val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
+    val colors = LocalHorusColors.current
 
     AppScaffold {
         ScreenScaffold(
@@ -38,18 +38,18 @@ fun ProfileScreen(profile: MedicalProfile) {
                         context.startActivity(intent)
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = HorusRed,
-                        contentColor = Color.White,
+                        containerColor = colors.pillBlue,
+                        contentColor = com.horus.wear.presentation.theme.HorusTextDark,
                     ),
                 ) {
-                    Text("Ver ficha", fontSize = 11.sp)
+                    Text("Ver ficha", fontSize = 11.sp, fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
             }
         ) { contentPadding ->
             TransformingLazyColumn(
                 contentPadding = contentPadding,
                 state = listState,
-                modifier = Modifier.background(HorusDark),
+                modifier = Modifier.background(colors.background),
             ) {
                 item {
                     HorusHeader(
@@ -73,7 +73,7 @@ fun ProfileScreen(profile: MedicalProfile) {
                 if (profile.allergies.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "⚠️ ALERGIAS",
+                            text = "ALERGIAS",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
@@ -96,7 +96,7 @@ fun ProfileScreen(profile: MedicalProfile) {
                 if (profile.medications.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "💊 MEDICAMENTOS",
+                            text = "MEDICAMENTOS",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
@@ -107,6 +107,13 @@ fun ProfileScreen(profile: MedicalProfile) {
                         item {
                             InfoCard(
                                 text = med,
+                                bgColor = colors.pillGreen,
+                                icon = {
+                                    PillIllustration(
+                                        color = com.horus.wear.presentation.theme.HorusTextDark,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .transformedHeight(this, transformationSpec),
@@ -119,7 +126,7 @@ fun ProfileScreen(profile: MedicalProfile) {
                 if (profile.conditions.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "🏥 CONDICIONES",
+                            text = "CONDICIONES",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
@@ -130,6 +137,13 @@ fun ProfileScreen(profile: MedicalProfile) {
                         item {
                             InfoCard(
                                 text = cond,
+                                bgColor = colors.pillBlue,
+                                icon = {
+                                    ShieldIllustration(
+                                        color = com.horus.wear.presentation.theme.HorusTextDark,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .transformedHeight(this, transformationSpec),
@@ -142,7 +156,7 @@ fun ProfileScreen(profile: MedicalProfile) {
                 if (profile.emergencyContact.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "📞 EMERGENCIA",
+                            text = "EMERGENCIA",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),

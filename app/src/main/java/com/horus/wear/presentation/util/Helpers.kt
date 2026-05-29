@@ -1,10 +1,10 @@
 package com.horus.wear.presentation.util
 
 import androidx.compose.ui.graphics.Color
-import com.horus.wear.presentation.theme.HorusGreen
-import com.horus.wear.presentation.theme.HorusOrange
-import com.horus.wear.presentation.theme.HorusRed
-import com.horus.wear.presentation.theme.HorusYellow
+import com.horus.wear.presentation.theme.HorusCritical
+import com.horus.wear.presentation.theme.HorusPastelGreen
+import com.horus.wear.presentation.theme.HorusWarning
+import com.horus.wear.presentation.theme.HorusPastelYellow
 
 fun bloodTypeLabel(bt: String): String =
     bt.replace("_POSITIVE", "+").replace("_NEGATIVE", "-")
@@ -12,10 +12,10 @@ fun bloodTypeLabel(bt: String): String =
         .replace("O_", "O").replace("AB_", "AB")
 
 fun severityColor(s: String): Color = when (s.uppercase()) {
-    "LIFE_THREATENING" -> HorusRed
-    "SEVERE"           -> HorusOrange
-    "MODERATE"         -> HorusYellow
-    else               -> HorusGreen
+    "LIFE_THREATENING" -> HorusCritical
+    "SEVERE"           -> HorusWarning
+    "MODERATE"         -> HorusPastelYellow
+    else               -> HorusPastelGreen
 }
 
 fun ageFromDob(dob: String?): String {

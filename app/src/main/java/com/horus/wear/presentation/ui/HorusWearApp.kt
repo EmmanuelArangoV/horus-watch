@@ -2,9 +2,9 @@ package com.horus.wear.presentation.ui
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.wear.compose.material3.MaterialTheme
 import com.horus.wear.presentation.model.MedicalProfile
 import com.horus.wear.presentation.network.fetchMedicalProfile
+import com.horus.wear.presentation.theme.HorusWearTheme
 import com.horus.wear.presentation.ui.components.ErrorScreen
 import com.horus.wear.presentation.ui.components.LoadingScreen
 import com.horus.wear.presentation.ui.screens.ProfileScreen
@@ -33,7 +33,7 @@ fun HorusWearApp() {
         }
     }
 
-    MaterialTheme {
+    HorusWearTheme {
         when (screen) {
             "loading" -> LoadingScreen()
             "error"   -> ErrorScreen(errorMsg) {
@@ -41,7 +41,7 @@ fun HorusWearApp() {
                     screen = "loading"
                     val result = fetchMedicalProfile(userId)
                     if (result != null) { profile = result; screen = "profile" }
-                    else { errorMsg = "Sin conexin"; screen = "error" }
+                    else { errorMsg = "Sin conexión"; screen = "error" }
                 }
             }
             "profile" -> profile?.let { ProfileScreen(it) }

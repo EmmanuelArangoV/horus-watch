@@ -22,25 +22,26 @@ import com.horus.wear.presentation.model.AllergyItem
 import com.horus.wear.presentation.model.MedicalProfile
 import com.horus.wear.presentation.theme.*
 import com.horus.wear.presentation.util.severityColor
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 
 @Composable
 fun LoadingScreen() {
+    val colors = LocalHorusColors.current
     Box(
-        modifier = Modifier.fillMaxSize().background(HorusDark),
+        modifier = Modifier.fillMaxSize().background(colors.background),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            CircularProgressIndicator(colors = ProgressIndicatorDefaults.colors(indicatorColor = HorusRed))
-            Text("Cargando...", color = HorusMuted, fontSize = 12.sp)
+            CircularProgressIndicator(colors = ProgressIndicatorDefaults.colors(indicatorColor = colors.pillYellow))
+            Text("Cargando...", color = colors.textMuted, fontSize = 12.sp, fontFamily = Exo2FontFamily)
         }
     }
 }
 
 @Composable
 fun ErrorScreen(msg: String, onRetry: () -> Unit) {
+    val colors = LocalHorusColors.current
     Box(
-        modifier = Modifier.fillMaxSize().background(HorusDark),
+        modifier = Modifier.fillMaxSize().background(colors.background),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -48,14 +49,14 @@ fun ErrorScreen(msg: String, onRetry: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(16.dp),
         ) {
-            Text("⚠️", fontSize = 28.sp)
-            Text(msg, color = HorusMuted, fontSize = 11.sp, textAlign = TextAlign.Center)
+            StarIllustration(color = HorusCritical, modifier = Modifier.size(32.dp))
+            Text(msg, color = colors.textMuted, fontSize = 11.sp, textAlign = TextAlign.Center, fontFamily = Exo2FontFamily)
             Button(
                 onClick = onRetry,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = HorusRed),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.pillPink),
             ) {
-                Text("Reintentar", fontSize = 12.sp, color = Color.White)
+                Text("Reintentar", fontSize = 12.sp, color = HorusTextDark, fontFamily = Exo2FontFamily, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -63,6 +64,7 @@ fun ErrorScreen(msg: String, onRetry: () -> Unit) {
 
 @Composable
 fun HorusHeader(modifier: Modifier = Modifier, transformation: SurfaceTransformation) {
+    val colors = LocalHorusColors.current
     ListHeader(
         modifier = modifier,
         transformation = transformation,
@@ -76,15 +78,16 @@ fun HorusHeader(modifier: Modifier = Modifier, transformation: SurfaceTransforma
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(HorusRed)
+                    .background(colors.pillBlue)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "HORUS",
-                color = HorusRed,
-                fontSize = 11.sp,
+                color = colors.text,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 2.sp,
+                letterSpacing = 1.sp,
+                fontFamily = Exo2FontFamily
             )
         }
     }
@@ -97,47 +100,53 @@ fun NameBloodCard(
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation,
 ) {
+    val colors = LocalHorusColors.current
     Card(
         onClick = {},
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = HorusSurface),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         transformation = transformation,
     ) {
         Column(
             modifier = Modifier.padding(12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = profile.name,
-                color = HorusCream,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                color = colors.text,
+                fontSize = 16.sp,
+                fontFamily = Exo2FontFamily,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             if (profile.age.isNotEmpty()) {
-                Text(text = profile.age, color = HorusMuted, fontSize = 11.sp)
+                Text(text = profile.age, color = colors.textMuted, fontSize = 12.sp, fontFamily = Exo2FontFamily)
             }
             if (profile.bloodType != "—") {
-                Box(
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0x20EF233C))
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(colors.pillPink)
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
                 ) {
+                    HeartIllustration(color = HorusTextDark, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "🩸 ${profile.bloodType}",
-                        color = HorusRed,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        text = profile.bloodType,
+                        color = HorusTextDark,
+                        fontSize = 15.sp,
+                        fontFamily = Exo2FontFamily,
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
             if (profile.organDonor) {
-                Text(text = "♥ Donante de órganos", color = HorusGreen, fontSize = 10.sp)
+                Text(text = "Donante de órganos", color = colors.pillGreen, fontSize = 11.sp, fontFamily = Exo2FontFamily, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -150,13 +159,15 @@ fun SectionLabel(
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation,
 ) {
+    val colors = LocalHorusColors.current
     ListHeader(modifier = modifier, transformation = transformation) {
         Text(
             text = text,
-            color = HorusMuted,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
+            color = colors.textMuted,
+            fontSize = 11.sp,
+            fontFamily = Exo2FontFamily,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.5.sp,
         )
     }
 }
@@ -168,42 +179,38 @@ fun AllergyCard(
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation,
 ) {
-    val color = severityColor(allergy.severity)
+    val colors = LocalHorusColors.current
     Card(
         onClick = {},
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HorusSurface),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.pillYellow),
         transformation = transformation,
     ) {
         Row(
-            modifier = Modifier.padding(10.dp).fillMaxWidth(),
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .height(32.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(color)
-            )
+            StarIllustration(color = HorusTextDark, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
                     text = allergy.name,
-                    color = HorusCream,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    color = HorusTextDark,
+                    fontSize = 13.sp,
+                    fontFamily = Exo2FontFamily,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = when (allergy.severity.uppercase()) {
-                        "LIFE_THREATENING" -> "⚠️ Riesgo vital"
+                        "LIFE_THREATENING" -> "Riesgo vital"
                         "SEVERE"           -> "Severa"
                         "MODERATE"         -> "Moderada"
                         else               -> "Leve"
                     },
-                    color = color,
-                    fontSize = 10.sp,
+                    color = HorusTextDark.copy(alpha = 0.8f),
+                    fontSize = 11.sp,
+                    fontFamily = Exo2FontFamily,
                 )
             }
         }
@@ -214,24 +221,34 @@ fun AllergyCard(
 @Composable
 fun InfoCard(
     text: String,
+    icon: @Composable () -> Unit,
+    bgColor: Color,
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation,
 ) {
     Card(
         onClick = {},
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HorusSurface),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = bgColor),
         transformation = transformation,
     ) {
-        Text(
-            text = text,
-            color = HorusCream,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(10.dp).fillMaxWidth(),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Row(
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icon()
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = text,
+                color = HorusTextDark,
+                fontSize = 13.sp,
+                fontFamily = Exo2FontFamily,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -243,6 +260,7 @@ fun EmergencyContactCard(
     transformation: SurfaceTransformation,
     context: Context,
 ) {
+    val colors = LocalHorusColors.current
     Card(
         onClick = {
             if (profile.emergencyPhone.isNotEmpty()) {
@@ -251,19 +269,25 @@ fun EmergencyContactCard(
                 context.startActivity(intent)
             }
         },
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HorusSurface),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         transformation = transformation,
     ) {
-        Column(modifier = Modifier.padding(10.dp).fillMaxWidth()) {
-            Text(text = profile.emergencyContact, color = HorusCream, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-            Text(text = profile.emergencyPhone, color = HorusRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = "Toca para llamar", color = HorusMuted, fontSize = 9.sp)
+        Row(
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PhoneIllustration(color = colors.pillBlue, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(text = profile.emergencyContact, color = colors.text, fontSize = 13.sp, fontFamily = Exo2FontFamily, fontWeight = FontWeight.Bold)
+                Text(text = profile.emergencyPhone, color = HorusCritical, fontSize = 12.sp, fontFamily = Exo2FontFamily, fontWeight = FontWeight.Bold)
+                Text(text = "Toca para llamar", color = colors.textMuted, fontSize = 10.sp, fontFamily = Exo2FontFamily)
+            }
         }
     }
 }
-
 
 @Composable
 fun PanicButton(
@@ -279,17 +303,21 @@ fun PanicButton(
                 context.startActivity(intent)
             }
         },
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = HorusRed),
-        shape = RoundedCornerShape(14.dp),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp).fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = HorusCritical),
+        shape = RoundedCornerShape(32.dp),
         transformation = transformation,
     ) {
-        Text(
-            text = "🚨 EMERGENCIA",
-            color = Color.White,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.ExtraBold,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            HeartIllustration(color = Color.White, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "EMERGENCIA",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontFamily = Exo2FontFamily,
+                fontWeight = FontWeight.ExtraBold,
+            )
+        }
     }
 }
-
