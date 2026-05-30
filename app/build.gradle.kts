@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -51,6 +52,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.wear.tooling.preview)
+    implementation(libs.firebase.messaging)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.test.manifest)
@@ -59,4 +61,15 @@ dependencies {
     // HTTP y Coroutines
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Tiles
+    implementation("androidx.wear.tiles:tiles:1.6.0")
+    implementation("androidx.wear.tiles:tiles-material:1.6.0")
+    implementation("androidx.wear.tiles:tiles-tooling:1.6.0")
+    implementation("androidx.wear.tiles:tiles-tooling-preview:1.6.0")
+    implementation("androidx.wear.protolayout:protolayout:1.4.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.4.0")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.4.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("com.google.guava:guava:33.1.0-android")
 }

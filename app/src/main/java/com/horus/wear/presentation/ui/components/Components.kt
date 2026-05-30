@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.*
 import com.horus.wear.presentation.model.AllergyItem
+import com.horus.wear.presentation.model.ConditionItem
 import com.horus.wear.presentation.model.MedicalProfile
 import com.horus.wear.presentation.theme.*
 import com.horus.wear.presentation.util.severityColor
@@ -124,7 +125,7 @@ fun NameBloodCard(
                 overflow = TextOverflow.Ellipsis,
             )
             if (profile.age.isNotEmpty()) {
-                Text(text = profile.age, color = colors.textMuted, fontSize = 12.sp, fontFamily = Exo2FontFamily)
+                Text(text = "${profile.age} años", color = colors.textMuted, fontSize = 12.sp, fontFamily = Exo2FontFamily)
             }
             if (profile.bloodType != "—") {
                 Row(
@@ -145,8 +146,28 @@ fun NameBloodCard(
                     )
                 }
             }
-            if (profile.organDonor) {
-                Text(text = "Donante de órganos", color = colors.pillGreen, fontSize = 11.sp, fontFamily = Exo2FontFamily, fontWeight = FontWeight.Medium)
+            if (profile.organDonor || profile.insuranceProvider.isNotEmpty()) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (profile.organDonor) {
+                        Text(
+                            text = "Donante de órganos",
+                            color = colors.pillGreen,
+                            fontSize = 11.sp,
+                            fontFamily = Exo2FontFamily,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    if (profile.insuranceProvider.isNotEmpty()) {
+                        Text(
+                            text = profile.insuranceProvider,
+                            color = colors.pillBlue,
+                            fontSize = 11.sp,
+                            fontFamily = Exo2FontFamily,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }
@@ -216,6 +237,51 @@ fun AllergyCard(
         }
     }
 }
+@Composable
+fun ConditionCard(
+    condition: ConditionItem,
+    modifier: Modifier = Modifier,
+    transformation: SurfaceTransformation,
+) {
+    val colors = LocalHorusColors.current
+    Card(
+        onClick = {},
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.pillBlue),
+        transformation = transformation,
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ShieldIllustration(color = HorusTextDark, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = condition.name,
+                    color = HorusTextDark,
+                    fontSize = 13.sp,
+                    fontFamily = Exo2FontFamily,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = when (condition.status.uppercase()) {
+                        "ACTIVE" -> "Activa"
+                        "MANAGED" -> "Controlada"
+                        "REMISSION" -> "Remisión"
+                        "CHRONIC" -> "Crónica"
+                        else -> condition.status
+                    },
+                    color = HorusTextDark.copy(alpha = 0.8f),
+                    fontSize = 11.sp,
+                    fontFamily = Exo2FontFamily,
+                )
+            }
+        }
+    }
+}
+
 
 
 @Composable
@@ -225,6 +291,7 @@ fun InfoCard(
     bgColor: Color,
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation,
+    fontSize: androidx.compose.ui.unit.TextUnit = 13.sp,
 ) {
     Card(
         onClick = {},
@@ -242,7 +309,7 @@ fun InfoCard(
             Text(
                 text = text,
                 color = HorusTextDark,
-                fontSize = 13.sp,
+                fontSize = fontSize,
                 fontFamily = Exo2FontFamily,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,

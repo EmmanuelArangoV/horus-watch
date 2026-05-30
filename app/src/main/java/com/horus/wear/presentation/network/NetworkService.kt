@@ -1,7 +1,9 @@
 package com.horus.wear.presentation.network
 
 import com.horus.wear.presentation.model.AllergyItem
+import com.horus.wear.presentation.model.ConditionItem
 import com.horus.wear.presentation.model.MedicalProfile
+import com.horus.wear.presentation.model.PrivacySettings
 import com.horus.wear.presentation.util.BASE_URL
 import com.horus.wear.presentation.util.ageFromDob
 import com.horus.wear.presentation.util.bloodTypeLabel
@@ -55,6 +57,7 @@ suspend fun verifyDeviceCode(code: String): Result<JSONObject> {
 }
 
 suspend fun refreshTokens(context: Context): Boolean {
+    // ... (existing code)
     return withContext(Dispatchers.IO) {
         val refreshToken = getRefreshToken(context) ?: return@withContext false
         val json = JSONObject().apply { put("refreshToken", refreshToken) }
@@ -82,6 +85,25 @@ suspend fun refreshTokens(context: Context): Boolean {
     }
 }
 
+suspend fun updatePushToken(context: Context, token: String): Boolean {
+    return withContext(Dispatchers.IO) {
+        val accessToken = getAccessToken(context) ?: return@withContext false
+        val json = JSONObject().apply { put("pushToken", token) }
+        val body = json.toString().toRequestBody("application/json".toMediaType())
+        val request = Request.Builder()
+            .url("$BASE_URL/api/profile/push-token")
+            .post(body)
+            .header("Authorization", "Bearer $accessToken")
+            .build()
+        try {
+            val response = client.newCall(request).execute()
+            response.isSuccessful
+        } catch(e: Exception) {
+            false
+        }
+    }
+}
+
 suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfile? {
     return withContext(Dispatchers.IO) {
         var jsonString = getProfileJson(context)
@@ -89,7 +111,7 @@ suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfil
         try {
             var token = getAccessToken(context)
             var request = Request.Builder()
-                .url("$BASE_URL/emergency/$userId/json")
+                .url("$BASE_URL/api/profile/full")
                 .apply { if (token != null) header("Authorization", "Bearer $token") }
                 .build()
                 
@@ -126,6 +148,7 @@ suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfil
 
             val personalInfo = json.optJSONObject("personalInfo")
             val medicalProfile = json.optJSONObject("medicalProfile")
+            val privacySettingsJson = json.optJSONObject("privacySettings")
             val allergiesArr = json.optJSONArray("allergies")
             val medsArr = json.optJSONArray("medications")
             val conditionsArr = json.optJSONArray("chronicConditions")
@@ -136,6 +159,9 @@ suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfil
             val bloodType = personalInfo?.optString("bloodType", "") ?: ""
             val dob = personalInfo?.optString("dateOfBirth", "") ?: ""
             val organDonor = medicalProfile?.optBoolean("organDonor", false) ?: false
+            val insuranceProvider = (medicalProfile?.optString("insuranceProvider") ?: "")
+                .ifEmpty { medicalProfile?.optString("insurance_provider") ?: "" }
+            val notes = medicalProfile?.optString("additionalNotes", "") ?: ""
 
             val allergies = mutableListOf<AllergyItem>()
             if (allergiesArr != null) {
@@ -159,10 +185,14 @@ suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfil
                 }
             }
 
-            val conditions = mutableListOf<String>()
+            val conditions = mutableListOf<ConditionItem>()
             if (conditionsArr != null) {
                 for (i in 0 until conditionsArr.length()) {
-                    conditions.add(conditionsArr.getJSONObject(i).optString("conditionName", ""))
+                    val cObj = conditionsArr.getJSONObject(i)
+                    conditions.add(ConditionItem(
+                        name = cObj.optString("conditionName", ""),
+                        status = cObj.optString("status", "ACTIVE")
+                    ))
                 }
             }
 
@@ -174,17 +204,31 @@ suspend fun fetchMedicalProfile(context: Context, userId: String): MedicalProfil
                 contactPhone = c.optString("phonePrimary", "")
             }
 
+            val privacySettings = PrivacySettings(
+                showFullName = privacySettingsJson?.optBoolean("showFullName", true) ?: true,
+                showAge = privacySettingsJson?.optBoolean("showAge", true) ?: true,
+                showBloodType = privacySettingsJson?.optBoolean("showBloodType", true) ?: true,
+                showMedications = privacySettingsJson?.optBoolean("showMedications", true) ?: true,
+                showAllergies = privacySettingsJson?.optBoolean("showAllergies", true) ?: true,
+                showEmergencyContacts = privacySettingsJson?.optBoolean("showEmergencyContacts", true) ?: true,
+                showMedicalHistory = privacySettingsJson?.optBoolean("showMedicalHistory", true) ?: true,
+                showChronicConditions = privacySettingsJson?.optBoolean("showChronicConditions", true) ?: true,
+            )
+
             MedicalProfile(
-                name = "$firstName $lastName".trim(),
-                bloodType = if (bloodType.isNotEmpty()) bloodTypeLabel(bloodType) else "—",
-                age = ageFromDob(dob),
-                organDonor = organDonor,
-                allergies = allergies,
-                medications = medications,
-                conditions = conditions,
-                emergencyContact = contactName,
-                emergencyPhone = contactPhone,
+                name = if (privacySettings.showFullName) "$firstName $lastName".trim() else "Oculto por privacidad",
+                bloodType = if (privacySettings.showBloodType && bloodType.isNotEmpty()) bloodTypeLabel(bloodType) else "—",
+                age = if (privacySettings.showAge) ageFromDob(dob) else "",
+                organDonor = if (privacySettings.showMedicalHistory) organDonor else false,
+                insuranceProvider = if (privacySettings.showMedicalHistory) insuranceProvider else "",
+                allergies = if (privacySettings.showAllergies) allergies else emptyList(),
+                medications = if (privacySettings.showMedications) medications else emptyList(),
+                conditions = if (privacySettings.showChronicConditions) conditions else emptyList(),
+                emergencyContact = if (privacySettings.showEmergencyContacts) contactName else "",
+                emergencyPhone = if (privacySettings.showEmergencyContacts) contactPhone else "",
                 userId = userId,
+                medicalNotes = if (privacySettings.showMedicalHistory) notes else "",
+                privacySettings = privacySettings
             )
         } catch (e: Exception) {
             e.printStackTrace()

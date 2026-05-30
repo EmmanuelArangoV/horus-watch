@@ -1,15 +1,13 @@
 package com.horus.wear.presentation.ui.screens
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
@@ -18,31 +16,31 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import com.horus.wear.presentation.model.MedicalProfile
 import com.horus.wear.presentation.theme.LocalHorusColors
 import com.horus.wear.presentation.ui.components.*
-import com.horus.wear.presentation.util.BASE_URL
 
 @Composable
-fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
+fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> Unit) {
     val context = LocalContext.current
     val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
     val colors = LocalHorusColors.current
-
+    
     AppScaffold {
         ScreenScaffold(
             scrollState = listState,
             edgeButton = {
                 EdgeButton(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW,
-                            Uri.parse("$BASE_URL/emergency/${profile.userId}"))
-                        context.startActivity(intent)
-                    },
+                    onClick = onSync,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.pillBlue,
                         contentColor = com.horus.wear.presentation.theme.HorusTextDark,
                     ),
                 ) {
-                    Text("Ver ficha", fontSize = 11.sp, fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(
+                        text = "SINCRONIZAR",
+                        fontSize = 11.sp,
+                        fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         ) { contentPadding ->
@@ -66,7 +64,7 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec)
                     )
                 }
 
@@ -87,7 +85,30 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .transformedHeight(this, transformationSpec),
-                                transformation = SurfaceTransformation(transformationSpec),
+                                transformation = SurfaceTransformation(transformationSpec)
+                            )
+                        }
+                    }
+                }
+
+                if (profile.conditions.isNotEmpty()) {
+                    item {
+                        SectionLabel(
+                            text = "CONDICIONES",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                        )
+                    }
+                    profile.conditions.forEach { cond ->
+                        item {
+                            ConditionCard(
+                                condition = cond,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .transformedHeight(this, transformationSpec),
+                                transformation = SurfaceTransformation(transformationSpec)
                             )
                         }
                     }
@@ -123,33 +144,27 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
                     }
                 }
 
-                if (profile.conditions.isNotEmpty()) {
+                if (profile.medicalNotes.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "CONDICIONES",
+                            text = "NOTAS MÉDICAS",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
                             transformation = SurfaceTransformation(transformationSpec),
                         )
                     }
-                    profile.conditions.forEach { cond ->
-                        item {
-                            InfoCard(
-                                text = cond,
-                                bgColor = colors.pillBlue,
-                                icon = {
-                                    ShieldIllustration(
-                                        color = com.horus.wear.presentation.theme.HorusTextDark,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .transformedHeight(this, transformationSpec),
-                                transformation = SurfaceTransformation(transformationSpec),
-                            )
-                        }
+                    item {
+                        InfoCard(
+                            text = profile.medicalNotes,
+                            bgColor = colors.surface,
+                            icon = { },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                            fontSize = 11.sp,
+                        )
                     }
                 }
 
@@ -170,20 +185,22 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
                             transformation = SurfaceTransformation(transformationSpec),
-                            context = context,
+                            context = context
                         )
                     }
                 }
 
-                item {
-                    PanicButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec),
-                        phone = profile.emergencyPhone,
-                        context = context,
-                    )
+                if (profile.emergencyPhone.isNotEmpty()) {
+                    item {
+                        PanicButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                            phone = profile.emergencyPhone,
+                            context = context
+                        )
+                    }
                 }
 
                 item {
@@ -202,7 +219,7 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit) {
                             color = colors.textMuted,
                             fontSize = 12.sp,
                             fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                            fontWeight = FontWeight.Medium,
                         )
                     }
                 }
