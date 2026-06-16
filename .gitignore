@@ -1,16 +1,26 @@
 # Gradle files
 .gradle/
 build/
+*/build/
 
 # IntelliJ IDEA files
 .idea/
 *.iml
+*.iws
 
 # Android Studio files
 local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Generated files
+bin/
+gen/
 
 # OS generated files
 .DS_Store
@@ -18,3 +28,14 @@ Thumbs.db
 
 # Sensitive files
 google-services.json
+
+# Log files
+*.log
+
+# Keystore files
+*.jks
+*.keystore
+*.p12
+
+# Optional: Secrets
+secrets.properties

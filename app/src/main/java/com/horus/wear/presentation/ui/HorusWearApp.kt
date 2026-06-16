@@ -1,6 +1,7 @@
 package com.horus.wear.presentation.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -9,10 +10,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.FirebaseMessaging
 import com.horus.wear.presentation.model.MedicalProfile
+import com.horus.wear.presentation.network.HealthUploadService
 import com.horus.wear.presentation.network.fetchMedicalProfile
 import com.horus.wear.presentation.network.updatePushToken
-import com.google.firebase.messaging.FirebaseMessaging
 import com.horus.wear.presentation.theme.HorusWearTheme
 import com.horus.wear.presentation.ui.components.ErrorScreen
 import com.horus.wear.presentation.ui.components.LoadingScreen
@@ -33,23 +35,45 @@ fun HorusWearApp() {
 
     var activeUserId by remember { mutableStateOf<String?>(null) }
 
+    // ── Start/stop background health upload service ───────────────────────
+    DisposableEffect(activeUserId) {
+        if (activeUserId != null) {
+            val intent = Intent(context, HealthUploadService::class.java)
+            context.startForegroundService(intent)
+            Log.d("HorusWear", "HealthUploadService started for $activeUserId")
+        }
+        onDispose {
+            if (activeUserId != null) {
+                context.stopService(Intent(context, HealthUploadService::class.java))
+            }
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            Log.d("HorusWear", "Permiso de notificaciones concedido")
-        } else {
-            Log.w("HorusWear", "Permiso de notificaciones denegado")
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        results.forEach { (perm, granted) ->
+            Log.d("HorusWear", "Permiso $perm: ${if (granted) "concedido" else "denegado"}")
         }
     }
 
     LaunchedEffect(Unit) {
         Log.d("HorusWear", "App iniciada, buscando usuario guardado...")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.d("HorusWear", "Solicitando permiso de notificaciones...")
-                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        val permsToRequest = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                add(Manifest.permission.POST_NOTIFICATIONS)
             }
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
+                add(Manifest.permission.BODY_SENSORS)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                add(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }
+        if (permsToRequest.isNotEmpty()) {
+            permissionLauncher.launch(permsToRequest.toTypedArray())
         }
         val savedUserId = getSavedUserId(context)
         Log.d("HorusWear", "Usuario guardado: $savedUserId")

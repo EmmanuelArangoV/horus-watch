@@ -14,10 +14,6 @@ import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
-import androidx.wear.tiles.tooling.preview.Preview
-import androidx.wear.tiles.tooling.preview.TilePreviewData
-import androidx.wear.tiles.tooling.preview.TilePreviewHelper
-import androidx.wear.tooling.preview.devices.WearDevices
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.horus.wear.R
@@ -27,9 +23,10 @@ import com.horus.wear.presentation.util.getProfileJson
 import org.json.JSONObject
 
 class HorusEmergencyTileService : TileService() {
-    private val RESOURCES_VERSION = "22"
-    
-    val ID_IC_HEART = "ic_heart"
+    companion object {
+        const val RESOURCES_VERSION = "25"
+        const val ID_IC_HEART = "ic_heart"
+    }
 
     override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
@@ -61,7 +58,7 @@ class HorusEmergencyTileService : TileService() {
                 .setVersion(RESOURCES_VERSION)
                 .addIdToImageMapping(ID_IC_HEART, ResourceBuilders.ImageResource.Builder()
                     .setAndroidResourceByResId(ResourceBuilders.AndroidImageResourceByResId.Builder()
-                        .setResourceId(R.drawable.ic_heart)
+                        .setResourceId(R.drawable.ic_horus_heart)
                         .build()
                     ).build()
                 )
@@ -127,17 +124,16 @@ object HorusTileLayout {
             )
             .build()
 
-        val horusSecondaryLight = 0xFFF4F0E8.toInt()
-        val horusTextDark = 0xFF2C2C2E.toInt()
-        val horusTextMuted = 0xFFA0A0A0.toInt()
-        val horusPastelPink = 0xFFFFAEE4.toInt()
-        val horusPastelBlue = 0xFFAFD5FF.toInt()
-        val horusSuccess = 0xFF6BCC7B.toInt()
+        val horusBg = 0xFFF9F6ED.toInt()
+        val horusTextPrimary = 0xFF1A1512.toInt()
+        val horusTextMuted = 0xFF8C7F6E.toInt()
+        val horusPink = 0xFFFAB2D3.toInt()
+        val horusBlue = 0xFFA5CCF4.toInt()
+        val horusGreen = 0xFF96C979.toInt()
 
         val now = java.util.Calendar.getInstance()
         val timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d", now.get(java.util.Calendar.HOUR_OF_DAY), now.get(java.util.Calendar.MINUTE))
 
-        // Root container with lateral padding to prevent name clipping on round screens
         val root = Column.Builder()
             .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
             .setWidth(androidx.wear.protolayout.DimensionBuilders.expand())
@@ -146,7 +142,7 @@ object HorusTileLayout {
                 ModifiersBuilders.Modifiers.Builder()
                     .setBackground(
                         ModifiersBuilders.Background.Builder()
-                            .setColor(argb(horusSecondaryLight))
+                            .setColor(argb(horusBg))
                             .build()
                     )
                     .setPadding(
@@ -165,15 +161,15 @@ object HorusTileLayout {
             )
 
         // 1. Time at top
-        root.addContent(Spacer.Builder().setHeight(dp(12f)).build())
+        root.addContent(Spacer.Builder().setHeight(dp(14f)).build())
         root.addContent(
             Text.Builder()
                 .setText(timeString)
                 .setFontStyle(
                     FontStyle.Builder()
                         .setColor(argb(horusTextMuted))
-                        .setSize(sp(13f))
-                        .setPreferredFontFamilies("sans-serif-condensed")
+                        .setSize(sp(12f))
+                        .setPreferredFontFamilies("Space Grotesk", "sans-serif-condensed")
                         .build()
                 )
                 .build()
@@ -192,7 +188,7 @@ object HorusTileLayout {
                             ModifiersBuilders.Modifiers.Builder()
                                 .setBackground(
                                     ModifiersBuilders.Background.Builder()
-                                        .setColor(argb(horusPastelBlue))
+                                        .setColor(argb(horusBlue))
                                         .setCorner(ModifiersBuilders.Corner.Builder().setRadius(dp(2.5f)).build())
                                         .build()
                                 )
@@ -206,10 +202,10 @@ object HorusTileLayout {
                         .setText("HORUS")
                         .setFontStyle(
                             FontStyle.Builder()
-                                .setColor(argb(horusTextMuted))
+                                .setColor(argb(horusTextPrimary))
                                 .setWeight(FONT_WEIGHT_BOLD)
                                 .setSize(sp(11f))
-                                .setPreferredFontFamilies("sans-serif-condensed")
+                                .setPreferredFontFamilies("Space Grotesk", "sans-serif-condensed")
                                 .build()
                         )
                         .build()
@@ -217,17 +213,17 @@ object HorusTileLayout {
                 .build()
         )
 
-        root.addContent(Spacer.Builder().setHeight(dp(14f)).build())
+        root.addContent(Spacer.Builder().setHeight(dp(12f)).build())
 
         if (!isLogged) {
             root.addContent(
                 Text.Builder()
-                    .setText("Abre la app e inicia sesión")
+                    .setText("Vincula tu reloj")
                     .setFontStyle(
                         FontStyle.Builder()
-                            .setColor(argb(horusTextDark))
+                            .setColor(argb(horusTextPrimary))
                             .setSize(sp(14f))
-                            .setPreferredFontFamilies("sans-serif-condensed")
+                            .setPreferredFontFamilies("DM Sans", "sans-serif")
                             .build()
                     )
                     .setMaxLines(2)
@@ -235,16 +231,16 @@ object HorusTileLayout {
                     .build()
             )
         } else {
-            // 3. User Name - Condensed Bold to prevent clipping
+            // 3. User Name
             root.addContent(
                 Text.Builder()
                     .setText(name)
                     .setFontStyle(
                         FontStyle.Builder()
-                            .setColor(argb(horusTextDark))
+                            .setColor(argb(horusTextPrimary))
                             .setWeight(FONT_WEIGHT_BOLD)
-                            .setSize(sp(17f))
-                            .setPreferredFontFamilies("sans-serif-condensed")
+                            .setSize(sp(16f))
+                            .setPreferredFontFamilies("DM Sans", "sans-serif")
                             .build()
                     )
                     .setMaxLines(2)
@@ -257,12 +253,12 @@ object HorusTileLayout {
                 root.addContent(Spacer.Builder().setHeight(dp(2f)).build())
                 root.addContent(
                     Text.Builder()
-                        .setText(age)
+                        .setText("${age} años")
                         .setFontStyle(
                             FontStyle.Builder()
                                 .setColor(argb(horusTextMuted))
                                 .setSize(sp(12f))
-                                .setPreferredFontFamilies("sans-serif-condensed")
+                                .setPreferredFontFamilies("DM Sans", "sans-serif")
                                 .build()
                         )
                         .build()
@@ -278,7 +274,7 @@ object HorusTileLayout {
                             ModifiersBuilders.Modifiers.Builder()
                                 .setBackground(
                                     ModifiersBuilders.Background.Builder()
-                                        .setColor(argb(horusPastelPink))
+                                        .setColor(argb(horusPink))
                                         .setCorner(ModifiersBuilders.Corner.Builder().setRadius(dp(16f)).build())
                                         .build()
                                 )
@@ -295,7 +291,7 @@ object HorusTileLayout {
                                 .setVerticalAlignment(VERTICAL_ALIGN_CENTER)
                                 .addContent(
                                     Image.Builder()
-                                        .setResourceId("ic_heart")
+                                        .setResourceId(HorusEmergencyTileService.ID_IC_HEART)
                                         .setWidth(dp(12f))
                                         .setHeight(dp(12f))
                                         .build()
@@ -303,13 +299,13 @@ object HorusTileLayout {
                                 .addContent(Spacer.Builder().setWidth(dp(4f)).build())
                                 .addContent(
                                     Text.Builder()
-                                        .setText(blood)
+                                        .setText("Tipo $blood")
                                         .setFontStyle(
                                             FontStyle.Builder()
-                                                .setColor(argb(horusTextDark))
+                                                .setColor(argb(0xFF7A1A3A.toInt()))
                                                 .setWeight(FONT_WEIGHT_BOLD)
-                                                .setSize(sp(14f))
-                                                .setPreferredFontFamilies("sans-serif-condensed")
+                                                .setSize(sp(13f))
+                                                .setPreferredFontFamilies("Space Grotesk", "sans-serif")
                                                 .build()
                                         )
                                         .build()
@@ -327,10 +323,10 @@ object HorusTileLayout {
                         .setText("Donante de órganos")
                         .setFontStyle(
                             FontStyle.Builder()
-                                .setColor(argb(horusSuccess))
+                                .setColor(argb(horusGreen))
                                 .setSize(sp(10f))
                                 .setWeight(FONT_WEIGHT_BOLD)
-                                .setPreferredFontFamilies("sans-serif-condensed")
+                                .setPreferredFontFamilies("DM Sans", "sans-serif")
                                 .build()
                         )
                         .build()
@@ -342,12 +338,12 @@ object HorusTileLayout {
         root.addContent(Spacer.Builder().setHeight(dp(12f)).build())
         root.addContent(
             Text.Builder()
-                .setText("Toca para entrar a la app")
+                .setText("Toca para abrir")
                 .setFontStyle(
                     FontStyle.Builder()
                         .setColor(argb(horusTextMuted))
                         .setSize(sp(9f))
-                        .setPreferredFontFamilies("sans-serif-condensed")
+                        .setPreferredFontFamilies("Space Grotesk", "sans-serif")
                         .build()
                 )
                 .build()
@@ -355,15 +351,4 @@ object HorusTileLayout {
 
         return root.build()
     }
-}
-
-@Preview(device = WearDevices.SMALL_ROUND)
-fun horusTilePreview(context: Context): TilePreviewData {
-    return TilePreviewData(
-        onTileRequest = { request ->
-            TilePreviewHelper.singleTimelineEntryTileBuilder(
-                HorusTileLayout.build(context, request.deviceConfiguration)
-            ).build()
-        }
-    )
 }

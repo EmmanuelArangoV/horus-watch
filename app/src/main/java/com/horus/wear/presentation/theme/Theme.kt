@@ -11,52 +11,72 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.wear.compose.material3.MaterialTheme
 import com.horus.wear.R
 
-val Exo2FontFamily = FontFamily(
-    Font(R.font.exo2, FontWeight.Normal),
-    Font(R.font.exo2, FontWeight.Medium),
-    Font(R.font.exo2, FontWeight.Bold),
-    Font(R.font.exo2, FontWeight.ExtraBold)
+// Space Grotesk — display font (wordmarks, headers, labels, buttons)
+val SpaceGroteskFamily = FontFamily(
+    Font(R.font.space_grotesk_regular,  FontWeight.Normal),
+    Font(R.font.space_grotesk_semibold, FontWeight.SemiBold),
+    Font(R.font.space_grotesk_bold,     FontWeight.Bold),
+    Font(R.font.space_grotesk_bold,     FontWeight.ExtraBold), // 700 is max for SG
 )
+
+// DM Sans — body font (names, descriptions, body text)
+val DMSansFamily = FontFamily(
+    Font(R.font.dm_sans_regular,   FontWeight.Normal),
+    Font(R.font.dm_sans_medium,    FontWeight.Medium),
+    Font(R.font.dm_sans_bold,      FontWeight.Bold),
+    Font(R.font.dm_sans_extrabold, FontWeight.ExtraBold),
+)
+
+// Legacy alias — kept so no compile errors while we migrate remaining references
+val Exo2FontFamily = DMSansFamily
 
 data class HorusColors(
     val background: Color,
     val surface: Color,
+    val mutedSurface: Color,
+    val border: Color,
     val text: Color,
     val textMuted: Color,
-    val pillBlue: Color = HorusPastelBlue,
-    val pillGreen: Color = HorusPastelGreen,
-    val pillPink: Color = HorusPastelPink,
-    val pillYellow: Color = HorusPastelYellow,
+    val pillBlue: Color     = HorusBlue,
+    val pillBlueFg: Color   = HorusBlueFg,
+    val pillGreen: Color    = HorusGreen,
+    val pillGreenFg: Color  = HorusGreenFg,
+    val pillPink: Color     = HorusPink,
+    val pillPinkFg: Color   = HorusPinkFg,
+    val pillYellow: Color   = HorusYellow,
+    val pillYellowFg: Color = HorusYellowFg,
+    val red: Color,
 )
 
 val LightColors = HorusColors(
-    background = HorusLightCream,
-    surface = HorusSecondaryLight,
-    text = HorusTextDark,
-    textMuted = Color.Gray,
+    background   = HorusBg,
+    surface      = HorusCardLight,
+    mutedSurface = HorusMutedBgLight,
+    border       = HorusBorderLight,
+    text         = HorusPrimary,
+    textMuted    = HorusMuted,
+    red          = HorusRed,
 )
 
 val DarkColors = HorusColors(
-    background = HorusDarkBg,
-    surface = HorusSecondaryDark,
-    text = HorusTextLight,
-    textMuted = Color(0xFFA0A0A0),
+    background   = HorusDarkBg,
+    surface      = HorusDarkCard,
+    mutedSurface = HorusDarkMutedBg,
+    border       = HorusDarkBorder,
+    text         = HorusDarkPrimary,
+    textMuted    = HorusDarkMuted,
+    red          = HorusDarkRed,
 )
 
-val LocalHorusColors = staticCompositionLocalOf { DarkColors }
+val LocalHorusColors = staticCompositionLocalOf { LightColors }
 
 @Composable
 fun HorusWearTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) DarkColors else LightColors
-
     CompositionLocalProvider(LocalHorusColors provides colors) {
-        // We still wrap in Wear Compose MaterialTheme for some internal defaults,
-        // but we'll use our LocalHorusColors explicitly in our UI.
-        MaterialTheme(
-            content = content
-        )
+        MaterialTheme(content = content)
     }
 }

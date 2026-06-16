@@ -2,18 +2,22 @@ package com.horus.wear.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.horus.wear.presentation.model.MedicalProfile
+import com.horus.wear.presentation.theme.DMSansFamily
+import com.horus.wear.presentation.theme.SpaceGroteskFamily
+import com.horus.wear.presentation.theme.HorusGreenFg
 import com.horus.wear.presentation.theme.LocalHorusColors
 import com.horus.wear.presentation.ui.components.*
 
@@ -22,8 +26,8 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
     val context = LocalContext.current
     val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
-    val colors = LocalHorusColors.current
-    
+    val c = LocalHorusColors.current
+
     AppScaffold {
         ScreenScaffold(
             scrollState = listState,
@@ -31,24 +35,27 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                 EdgeButton(
                     onClick = onSync,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.pillBlue,
-                        contentColor = com.horus.wear.presentation.theme.HorusTextDark,
+                        containerColor = c.pillBlue,
+                        contentColor   = c.pillBlueFg,
                     ),
                 ) {
                     Text(
-                        text = "SINCRONIZAR",
-                        fontSize = 11.sp,
-                        fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily,
-                        fontWeight = FontWeight.Bold
+                        text = "SYNC",
+                        fontSize = 10.sp,
+                        fontFamily = SpaceGroteskFamily,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
                     )
                 }
-            }
+            },
         ) { contentPadding ->
             TransformingLazyColumn(
                 contentPadding = contentPadding,
                 state = listState,
-                modifier = Modifier.background(colors.background),
+                modifier = Modifier.background(c.background),
             ) {
+
+                // ── HORUS wordmark ──────────────────────────────────────────
                 item {
                     HorusHeader(
                         modifier = Modifier
@@ -58,16 +65,18 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                     )
                 }
 
+                // ── Identity card ───────────────────────────────────────────
                 item {
                     NameBloodCard(
                         profile = profile,
                         modifier = Modifier
                             .fillMaxWidth()
                             .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec)
+                        transformation = SurfaceTransformation(transformationSpec),
                     )
                 }
 
+                // ── Allergies ───────────────────────────────────────────────
                 if (profile.allergies.isNotEmpty()) {
                     item {
                         SectionLabel(
@@ -85,12 +94,13 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .transformedHeight(this, transformationSpec),
-                                transformation = SurfaceTransformation(transformationSpec)
+                                transformation = SurfaceTransformation(transformationSpec),
                             )
                         }
                     }
                 }
 
+                // ── Chronic conditions ──────────────────────────────────────
                 if (profile.conditions.isNotEmpty()) {
                     item {
                         SectionLabel(
@@ -108,12 +118,13 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .transformedHeight(this, transformationSpec),
-                                transformation = SurfaceTransformation(transformationSpec)
+                                transformation = SurfaceTransformation(transformationSpec),
                             )
                         }
                     }
                 }
 
+                // ── Medications ─────────────────────────────────────────────
                 if (profile.medications.isNotEmpty()) {
                     item {
                         SectionLabel(
@@ -128,11 +139,12 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                         item {
                             InfoCard(
                                 text = med,
-                                bgColor = colors.pillGreen,
+                                bgColor = c.pillGreen,
+                                textColor = HorusGreenFg,
                                 icon = {
                                     PillIllustration(
-                                        color = com.horus.wear.presentation.theme.HorusTextDark,
-                                        modifier = Modifier.size(20.dp)
+                                        color = HorusGreenFg,
+                                        modifier = Modifier.size(16.dp),
                                     )
                                 },
                                 modifier = Modifier
@@ -144,6 +156,7 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                     }
                 }
 
+                // ── Medical notes ───────────────────────────────────────────
                 if (profile.medicalNotes.isNotEmpty()) {
                     item {
                         SectionLabel(
@@ -157,8 +170,9 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                     item {
                         InfoCard(
                             text = profile.medicalNotes,
-                            bgColor = colors.surface,
-                            icon = { },
+                            bgColor = c.mutedSurface,
+                            textColor = c.textMuted,
+                            icon = {},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
@@ -168,10 +182,11 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                     }
                 }
 
+                // ── Emergency contact ───────────────────────────────────────
                 if (profile.emergencyContact.isNotEmpty()) {
                     item {
                         SectionLabel(
-                            text = "EMERGENCIA",
+                            text = "CONTACTO",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
@@ -185,11 +200,12 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                                 .fillMaxWidth()
                                 .transformedHeight(this, transformationSpec),
                             transformation = SurfaceTransformation(transformationSpec),
-                            context = context
+                            context = context,
                         )
                     }
                 }
 
+                // ── Panic button ────────────────────────────────────────────
                 if (profile.emergencyPhone.isNotEmpty()) {
                     item {
                         PanicButton(
@@ -198,33 +214,37 @@ fun ProfileScreen(profile: MedicalProfile, onLogout: () -> Unit, onSync: () -> U
                                 .transformedHeight(this, transformationSpec),
                             transformation = SurfaceTransformation(transformationSpec),
                             phone = profile.emergencyPhone,
-                            context = context
+                            context = context,
                         )
                     }
                 }
 
+                // ── Logout ──────────────────────────────────────────────────
                 item {
                     Button(
                         onClick = onLogout,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                             .transformedHeight(this, transformationSpec),
-                        colors = ButtonDefaults.buttonColors(containerColor = colors.surface),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = c.mutedSurface,
+                            contentColor   = c.textMuted,
+                        ),
+                        shape = RoundedCornerShape(99.dp),
                         transformation = SurfaceTransformation(transformationSpec),
                     ) {
                         Text(
                             text = "Cerrar sesión",
-                            color = colors.textMuted,
-                            fontSize = 12.sp,
-                            fontFamily = com.horus.wear.presentation.theme.Exo2FontFamily,
+                            color = c.textMuted,
+                            fontSize = 11.sp,
+                            fontFamily = DMSansFamily,
                             fontWeight = FontWeight.Medium,
                         )
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
             }
         }
     }

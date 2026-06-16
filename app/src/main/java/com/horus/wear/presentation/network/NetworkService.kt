@@ -91,7 +91,7 @@ suspend fun updatePushToken(context: Context, token: String): Boolean {
         val json = JSONObject().apply { put("pushToken", token) }
         val body = json.toString().toRequestBody("application/json".toMediaType())
         val request = Request.Builder()
-            .url("$BASE_URL/api/profile/push-token")
+            .url("$BASE_URL/api/profile/watch-token")  // separate endpoint — won't overwrite phone token
             .post(body)
             .header("Authorization", "Bearer $accessToken")
             .build()
@@ -99,6 +99,48 @@ suspend fun updatePushToken(context: Context, token: String): Boolean {
             val response = client.newCall(request).execute()
             response.isSuccessful
         } catch(e: Exception) {
+            false
+        }
+    }
+}
+
+suspend fun sendHealthReadings(
+    context: Context,
+    heartRate: Int?,
+    steps: Int?,
+    calories: Int?,
+    activityMinutes: Int?,
+    battery: Int?,
+): Boolean {
+    return withContext(Dispatchers.IO) {
+        var token = getAccessToken(context) ?: return@withContext false
+        val json = JSONObject().apply {
+            if (heartRate       != null) put("heartRate",       heartRate)
+            if (steps           != null) put("steps",           steps)
+            if (calories        != null) put("calories",        calories)
+            if (activityMinutes != null) put("activityMinutes", activityMinutes)
+            if (battery         != null) put("battery",         battery)
+        }
+        val body = json.toString().toRequestBody("application/json".toMediaType())
+
+        fun buildRequest(t: String) = Request.Builder()
+            .url("$BASE_URL/api/wearable/readings")
+            .post(body)
+            .header("Authorization", "Bearer $t")
+            .build()
+
+        try {
+            var response = client.newCall(buildRequest(token)).execute()
+            if (response.code == 401) {
+                response.close()
+                if (refreshTokens(context)) {
+                    token = getAccessToken(context) ?: return@withContext false
+                    response = client.newCall(buildRequest(token)).execute()
+                }
+            }
+            response.isSuccessful
+        } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
