@@ -142,6 +142,7 @@ fun HorusWearApp() {
                     onLogout = {
                         clearSession(context)
                         activeUserId = null
+                        screen = "login"
                     },
                     onSync = {
                         scope.launch {
