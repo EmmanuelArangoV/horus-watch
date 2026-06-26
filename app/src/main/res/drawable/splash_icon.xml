@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:width="48dp"
-        android:height="48dp"
-        android:gravity="center">
+    <!-- Fondo Horus oscuro -->
+    <item>
         <shape android:shape="oval">
-            <solid android:color="#FFFFFF" />
+            <solid android:color="#1A1512" />
         </shape>
     </item>
+    <!-- Ojo de Horus centrado -->
     <item
         android:width="40dp"
         android:height="40dp"
         android:gravity="center">
         <vector
-            android:width="24dp"
-            android:height="24dp"
-            android:tint="#000000"
-            android:viewportWidth="24"
-            android:viewportHeight="24">
+            android:width="40dp"
+            android:height="40dp"
+            android:viewportWidth="108"
+            android:viewportHeight="108">
             <path
-                android:fillColor="#FF000000"
-                android:pathData="M17.6,11.48 L19.44,8.3a0.63,0.63 0,0 0,-1.09 -0.63l-1.88,3.24a11.43,11.43 0,0 0,-8.94 0L5.65,7.67a0.63,0.63 0,0 0,-1.09 0.63L6.4,11.48A10.81,10.81 0,0 0,1 20L23,20A10.81,10.81 0,0 0,17.6 11.48ZM7,17.25A1.25,1.25 0,1 1,8.25 16,1.25 1.25,0 0,1 7,17.25ZM17,17.25A1.25,1.25 0,1 1,18.25 16,1.25 1.25,0 0,1 17,17.25Z" />
+                android:fillColor="#F2EDB8"
+                android:pathData="M54,38 C35,38 22,54 22,54 C22,54 35,70 54,70 C73,70 86,54 86,54 C86,54 73,38 54,38 Z" />
+            <path
+                android:fillColor="#1A1512"
+                android:pathData="M54,44 C48.477,44 44,48.477 44,54 C44,59.523 48.477,64 54,64 C59.523,64 64,59.523 64,54 C64,48.477 59.523,44 54,44 Z" />
+            <path
+                android:fillColor="#F2EDB8"
+                android:pathData="M54,49 C51.239,49 49,51.239 49,54 C49,56.761 51.239,59 54,59 C56.761,59 59,56.761 59,54 C59,51.239 56.761,49 54,49 Z" />
+            <path
+                android:fillColor="#F2EDB8"
+                android:pathData="M38,62 C34,66 31,74 33,76 C35,78 40,73 44,68 Z" />
         </vector>
     </item>
 </layer-list>
