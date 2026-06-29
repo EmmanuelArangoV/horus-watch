@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.wear.tooling.preview)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.firestore)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.test.manifest)

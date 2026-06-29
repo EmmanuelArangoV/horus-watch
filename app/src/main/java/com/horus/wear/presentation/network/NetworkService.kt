@@ -88,17 +88,35 @@ suspend fun refreshTokens(context: Context): Boolean {
 suspend fun updatePushToken(context: Context, token: String): Boolean {
     return withContext(Dispatchers.IO) {
         val accessToken = getAccessToken(context) ?: return@withContext false
-        val json = JSONObject().apply { put("pushToken", token) }
-        val body = json.toString().toRequestBody("application/json".toMediaType())
-        val request = Request.Builder()
-            .url("$BASE_URL/api/profile/watch-token")  // separate endpoint — won't overwrite phone token
-            .post(body)
-            .header("Authorization", "Bearer $accessToken")
-            .build()
         try {
+            val body = JSONObject().put("pushToken", token).toString()
+                .toRequestBody("application/json".toMediaType())
+            val request = Request.Builder()
+                .url("$BASE_URL/api/profile/watch-token")
+                .post(body)
+                .addHeader("Authorization", "Bearer $accessToken")
+                .build()
             val response = client.newCall(request).execute()
             response.isSuccessful
-        } catch(e: Exception) {
+        } catch (e: Exception) {
+            android.util.Log.e("HorusWear", "Failed to save watch FCM token", e)
+            false
+        }
+    }
+}
+
+suspend fun clearPushToken(context: Context): Boolean {
+    return withContext(Dispatchers.IO) {
+        val accessToken = getAccessToken(context) ?: return@withContext false
+        try {
+            val request = Request.Builder()
+                .url("$BASE_URL/api/profile/watch-token")
+                .delete()
+                .addHeader("Authorization", "Bearer $accessToken")
+                .build()
+            client.newCall(request).execute().isSuccessful
+        } catch (e: Exception) {
+            android.util.Log.e("HorusWear", "Failed to clear watch FCM token", e)
             false
         }
     }

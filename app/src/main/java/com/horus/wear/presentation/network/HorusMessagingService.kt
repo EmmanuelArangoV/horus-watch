@@ -18,6 +18,7 @@ import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.horus.wear.presentation.util.getSavedUserId
 
 class HorusMessagingService : FirebaseMessagingService() {
 
@@ -56,6 +57,14 @@ class HorusMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         Log.d("HorusMessaging", "¡MENSAJE RECIBIDO! De: ${remoteMessage.from}")
+
+        val targetUserId = remoteMessage.data["userId"]
+        val activeUserId = getSavedUserId(applicationContext)
+
+        if (targetUserId != null && activeUserId != null && targetUserId != activeUserId) {
+            Log.d("HorusMessaging", "Notificación ignorada, el usuario activo es $activeUserId pero la notificación es para $targetUserId")
+            return
+        }
 
         // VIBRAR SIEMPRE (Incluso si no hay permiso de notificación visual)
         try {

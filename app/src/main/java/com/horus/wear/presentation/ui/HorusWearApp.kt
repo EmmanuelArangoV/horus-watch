@@ -14,6 +14,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.horus.wear.presentation.model.MedicalProfile
 import com.horus.wear.presentation.network.HealthUploadService
 import com.horus.wear.presentation.network.fetchMedicalProfile
+import com.horus.wear.presentation.network.clearPushToken
 import com.horus.wear.presentation.network.updatePushToken
 import com.horus.wear.presentation.theme.HorusWearTheme
 import com.horus.wear.presentation.ui.components.ErrorScreen
@@ -140,9 +141,12 @@ fun HorusWearApp() {
                 ProfileScreen(
                     profile = it,
                     onLogout = {
-                        clearSession(context)
-                        activeUserId = null
-                        screen = "login"
+                        scope.launch {
+                            clearPushToken(context)
+                            clearSession(context)
+                            activeUserId = null
+                            screen = "login"
+                        }
                     },
                     onSync = {
                         scope.launch {
