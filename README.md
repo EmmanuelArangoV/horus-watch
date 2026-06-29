@@ -1,63 +1,43 @@
-# Horus Wear ⌚
+# HorusWear ⌚
 
-Horus Wear es una aplicación para Wear OS diseñada para proporcionar acceso rápido a información médica crítica y contactos de emergencia directamente desde el reloj. Forma parte del ecosistema Horus para la gestión de emergencias médicas.
+HorusWear is the official Wear OS companion application for the Horus ecosystem. It provides users with immediate, wrist-accessible medical and emergency information, ensuring that critical data is always available at a glance when it matters most.
 
-## 🚀 Características
+## 🚀 Features
 
-- **Perfil Médico en el Reloj**: Visualiza nombre, tipo de sangre, edad y estado de donante de órganos.
-- **Información Crítica**: Acceso rápido a alergias (con niveles de severidad), condiciones crónicas y medicamentos.
-- **Botón de Pánico**: Acceso directo para realizar llamadas de emergencia al contacto principal.
-- **Sincronización en la Nube**: Los datos se mantienen actualizados mediante una API REST.
-- **Modo Offline**: Almacenamiento en caché del perfil para acceso sin conexión a internet.
-- **Material 3 para Wear OS**: Interfaz moderna, optimizada para pantallas redondas con animaciones de escalado y morphing.
+- **Medical ID Tile (Protolayout)**: A highly optimized, easily accessible Wear OS Tile that displays critical medical information (Blood Type, Age, Organ Donor status) directly from the watch face carousel.
+- **Smart Push Notifications (FCM)**: Receives targeted emergency alerts and notifications from the Horus backend. The app is smart enough to filter incoming payloads to ensure that alerts only trigger if they match the currently authenticated user on the watch.
+- **Quick Action Interface**: Designed specifically for the constraints of smartwatch displays, providing high-contrast typography, adaptive rounded icons, and a streamlined UI to launch the main Horus profile.
+- **Standalone Capability**: Capable of operating and syncing data efficiently, keeping the user's emergency profile up-to-date even on the go.
 
-## 🛠️ Requisitos del Entorno
+## 🛠️ Technology Stack
 
-Para compilar y ejecutar este proyecto, necesitarás:
+- **Kotlin** & **Jetpack Compose for Wear OS**: Modern, declarative UI development optimized for round and square smartwatches.
+- **Protolayout & Glance**: For building native, performant, and battery-friendly Wear OS Tiles.
+- **Firebase Cloud Messaging (FCM)**: For real-time, user-specific push notification delivery.
+- **Wear OS SDK**: Targeting Android API 30+ up to API 36, ensuring compatibility with the latest Wear OS 3, 4, and 5 devices.
 
-- **Android Studio**: Ladybug (2024.2.1) o superior recomendado.
-- **JDK**: Versión 17 o superior.
-- **Android SDK**: API Level 34 (Upside Down Cake).
-- **Dispositivo**: 
-  - Reloj físico con Wear OS 3.0 (API 30) o superior.
-  - O un Emulador de Wear OS (se recomienda un perfil redondo).
+## 📦 Installation & Setup
 
-## ⚙️ Configuración e Instalación
-
-1. **Clonar el repositorio**:
+1. **Clone the repository**
    ```bash
-   git clone <url-del-repositorio>
+   git clone https://github.com/EmmanuelArangoV/horus-watch.git
    ```
+2. **Open in Android Studio**
+   Open the cloned directory using the latest version of Android Studio (Koala or newer recommended).
+3. **Connect a Wear OS Device or Emulator**
+   Ensure you have a Wear OS emulator configured (API 30+) or a physical smartwatch connected via Wireless Debugging.
+4. **Build & Run**
+   Click the "Run" button in Android Studio. The app will be installed on the watch.
 
-2. **Configuración de la API**:
-   Abre el archivo `app/src/main/java/com/horus/wear/presentation/util/Constants.kt` (o donde se defina `BASE_URL`) y actualiza la URL del servidor si es necesario:
-   ```kotlin
-   const val BASE_URL = "https://tu-servidor-api.com"
-   ```
+## 🎨 UI/UX Guidelines
 
-3. **Sincronizar Gradle**:
-   Abre el proyecto en Android Studio y espera a que la sincronización de Gradle finalice correctamente.
+- **Typography**: Uses clean, readable system sans-serif fonts optimized for small screens (`sans-serif-medium`, `sans-serif-condensed`).
+- **Icons**: Fully supports Android Adaptive Icons. Ensure any changes to the app icon are made in the `res/mipmap-anydpi-v26` folder using the `horus_logo` background layer to guarantee a perfect circular mask on all launchers.
+- **Tiles**: When updating the `HorusEmergencyTileService`, remember that Wear OS caches Tiles aggressively. Always bump the `versionCode` in `build.gradle.kts` and re-add the Tile to the carousel to test UI changes.
 
-4. **Ejecución**:
-   - Selecciona el módulo `app`.
-   - Selecciona tu dispositivo Wear OS o emulador.
-   - Haz clic en **Run**.
+## 🤝 Contributing
 
-## 📲 Cómo usar en un nuevo dispositivo
-
-1. **Vinculación**:
-   Al abrir la app por primera vez en un reloj no vinculado, aparecerá un **código de 6 dígitos**.
-2. **Autorización**:
-   Ingresa este código en la aplicación móvil de Horus o en el panel web para autorizar el dispositivo.
-3. **Sincronización**:
-   Una vez verificado, el reloj descargará automáticamente tu perfil médico y lo mantendrá sincronizado cada vez que abras la aplicación.
-
-## 📚 Tecnologías Utilizadas
-
-- **Jetpack Compose para Wear OS**: Material 3.
-- **OkHttp3**: Para peticiones de red seguras.
-- **Corrutinas de Kotlin**: Gestión de hilos asíncronos.
-- **SharedPreferences**: Almacenamiento local del perfil y tokens de sesión.
+Contributions are welcome! Please ensure that any new features are tested on both round and square Wear OS form factors, and that battery consumption is kept to an absolute minimum (especially within Tile Services and FCM message handlers).
 
 ---
-© 2024 Horus Team - Tu salud, siempre a mano.
+*Built for the Horus Ecosystem.*
