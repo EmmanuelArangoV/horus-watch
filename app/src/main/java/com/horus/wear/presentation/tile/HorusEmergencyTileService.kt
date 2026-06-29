@@ -5,6 +5,7 @@ import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.DimensionBuilders.dp
+import androidx.wear.protolayout.DimensionBuilders.em
 import androidx.wear.protolayout.DimensionBuilders.sp
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.*
@@ -240,7 +241,7 @@ object HorusTileLayout {
                             .setColor(argb(horusTextPrimary))
                             .setWeight(FONT_WEIGHT_BOLD)
                             .setSize(sp(17f))
-                            .setLetterSpacing(0.02f)
+                            .setLetterSpacing(em(0.02f))
                             .setPreferredFontFamilies("sans-serif-condensed")
                             .build()
                     )
