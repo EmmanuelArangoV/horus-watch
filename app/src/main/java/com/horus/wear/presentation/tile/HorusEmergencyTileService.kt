@@ -12,6 +12,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.*
 import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
@@ -75,6 +76,7 @@ class HorusEmergencyTileService : TileService() {
     }
 }
 
+@androidx.annotation.OptIn(ProtoLayoutExperimental::class)
 object HorusTileLayout {
     fun build(
         context: Context,
